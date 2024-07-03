@@ -8,13 +8,20 @@
   <body>
     <div style="width: 100%; overflow: hidden">
       <div style="width: 600px; float: left">
-        <h1>Rooms</h1>
-        <input type="text" name="" id="room" />
-        <button onclick="joinRoom()">
-          join
-        </button>
+        <h1>Rooms</h1> <label for="roomLabel"></label>
+        <div id="newRoom">
+          <input type="text" name="" id="room" />
+          <button onclick="joinRoom()">join</button>
+        </div>
+        <h3>Room History</h3>
+        Click to join previous room
+        <div id="rooms"></div>
       </div>
+
+
+
       <div style="margin-left: 620px">
+        <h1>Chat</h1> <p id="roomLabel"></p>
         <div id="messages"></div>
         <input type="text" name="" id="message" />
         <button onclick="sendMessage(document.getElementById('message'))">
@@ -29,11 +36,10 @@
 
       // Get html elements needed
       var messages = document.getElementById("messages");
-      var room = document.getElementById("room");
+      var room;
       var form = document.getElementById("form");
       var input = document.getElementById("input");
-
-      var room;
+      var rooms = document.getElementById('rooms')
 
       // Event when server sends message
       socket.on("chat message", function (msg) {
@@ -49,10 +55,28 @@
         message.value = ""; // Reset input to blank
       };
 
-      joinRoom = () => {
-        room = document.getElementById('room').value
-        socket.emit("join room", room);
-        document.getElementById('room').value = ""; // Reset input to blank
+      // Join new room
+      joinRoom = (roomId) => {
+        if (roomId == null) {
+          room = document.getElementById("room").value;
+          socket.emit("join room", room);
+          var item = document.createElement('span');
+          item.innerHTML = '<li><button id="' + room +'" onclick="joinRoom('+ room + ')"/>' + room;
+
+          //var listItem = document.createElement("li");
+          //var roomItem = document.createElement("button");
+          //roomItem.textContent = room;
+          //listItem.appendChild(roomItem)
+          rooms.appendChild(item);
+
+          document.getElementById("room").value = ""; // Reset input to blank
+        } else {
+          room = roomId;
+          document.getElementById('roomLabel').innerHTML = room
+          socket.emit("join room", room);
+        }
+
+        document.getElementById('roomLabel').innerHTML = room
       };
     </script>
   </body>
