@@ -7,7 +7,13 @@
 
   <body>
     <div style="width: 100%; overflow: hidden">
-      <div style="width: 600px; float: left">Friends</div>
+      <div style="width: 600px; float: left">
+        <h1>Rooms</h1>
+        <input type="text" name="" id="room" />
+        <button onclick="joinRoom()">
+          join
+        </button>
+      </div>
       <div style="margin-left: 620px">
         <div id="messages"></div>
         <input type="text" name="" id="message" />
@@ -23,8 +29,11 @@
 
       // Get html elements needed
       var messages = document.getElementById("messages");
+      var room = document.getElementById("room");
       var form = document.getElementById("form");
       var input = document.getElementById("input");
+
+      var room;
 
       // Event when server sends message
       socket.on("chat message", function (msg) {
@@ -36,8 +45,14 @@
 
       // Send message to server
       sendMessage = (message) => {
-        socket.emit("chat message", message.value);
+        socket.emit("chat message", message.value, room);
         message.value = ""; // Reset input to blank
+      };
+
+      joinRoom = () => {
+        room = document.getElementById('room').value
+        socket.emit("join room", room);
+        document.getElementById('room').value = ""; // Reset input to blank
       };
     </script>
   </body>

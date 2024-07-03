@@ -1,3 +1,4 @@
+const { log } = require("console");
 const express = require("express");
 const app = express();
 const http = require("http");
@@ -18,14 +19,20 @@ io.on("connection", (socket) => {
   activeUsers.push(temp);
 
   console.log("User connected " + temp.inGame);
-
+  
   socket.on("disconnect", (msg) => {
     // Remove user from active users on discconect
     activeUsers.splice(activeUsers.indexOf(temp, activeUsers.indexOf(temp)));
   });
 
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
+  socket.on("chat message", (msg, room) => {
+    io.to(room).emit("chat message", msg, room);
+    console.log(room)
+  });
+
+  socket.on("join room", (room) => {
+    
+    socket.join(room)
   });
 });
 
@@ -44,24 +51,6 @@ class user {
   inGame = false;
 }
 
-function findGame(socket) {
-  activeUsers.forEach(element => {
-    if (element.socket.id != socket.id){
-      if (element.inGame = false){
-        socket.join('room 1')
-        element.socket.join('room 1')
-        element.inGame = true
-        return true;
-      }else {
-        return false
-      }
-    }else {
-      return false
-    }
-
-  });
-  return false
-}
 
 activeUsers = [];
 
