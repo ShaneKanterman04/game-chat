@@ -2,13 +2,40 @@
 <html>
   <head>
     <title>Socket.IO chat</title>
-    <style></style>
+    <style>
+      body {
+        color: white;
+        background-color: white;
+      }
+
+      li {
+        list-style-type: none;
+        color: white;
+        background-color: #13315c;
+      }
+
+      #panel {
+        background-color: #13315c;
+        min-height: 100%;
+        padding: 10px;
+      }
+
+      #spacing {
+        width: 10px;
+        background-color: white;
+      }
+
+      #message {
+        font-size: 50px;
+      }
+    </style>
   </head>
 
   <body>
-    <div style="width: 100%; overflow: hidden">
+    <div id="panel" style="width: 100%; overflow: hidden">
       <div style="width: 600px; float: left">
-        <h1>Rooms</h1> <label for="roomLabel"></label>
+        <h1>Rooms</h1>
+        <label for="roomLabel"></label>
         <div id="newRoom">
           <input type="text" name="" id="room" />
           <button onclick="joinRoom()">join</button>
@@ -18,13 +45,12 @@
         <div id="rooms"></div>
       </div>
 
-
-
-      <div style="margin-left: 620px">
-        <h1>Chat</h1> <p id="roomLabel"></p>
+      <div id="panel" style="margin-left: 620px">
+        <h1>Chat</h1>
+        <p id="roomLabel"></p>
         <div id="messages"></div>
-        <input type="text" name="" id="message" />
-        <button onclick="sendMessage(document.getElementById('message'))">
+        <input type="text" name="" id="messageInput" />
+        <button id="sendBtn" onclick="sendMessage(document.getElementById('messageInput'))">
           Send
         </button>
       </div>
@@ -39,12 +65,14 @@
       var room;
       var form = document.getElementById("form");
       var input = document.getElementById("input");
-      var rooms = document.getElementById('rooms')
+      var rooms = document.getElementById("rooms");
+      var messageInput = document.getElementById("messageInput");
 
       // Event when server sends message
       socket.on("chat message", function (msg) {
         var item = document.createElement("li");
         item.textContent = msg;
+        item.id = "message";
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
@@ -60,24 +88,34 @@
         if (roomId == null) {
           room = document.getElementById("room").value;
           socket.emit("join room", room);
-          var item = document.createElement('span');
-          item.innerHTML = '<li><button id="' + room +'" onclick="joinRoom('+ room + ')"/>' + room;
-
-          //var listItem = document.createElement("li");
-          //var roomItem = document.createElement("button");
-          //roomItem.textContent = room;
-          //listItem.appendChild(roomItem)
+          var item = document.createElement("span");
+          item.innerHTML =
+            '<li><button id="' +
+            room +
+            '" onclick="joinRoom(' +
+            room +
+            ')"/>' +
+            room;
           rooms.appendChild(item);
 
           document.getElementById("room").value = ""; // Reset input to blank
-        } else {
-          room = roomId;
-          document.getElementById('roomLabel').innerHTML = room
+        } else { // Join a previously visited room
+          room = roomId.innerHTML;
+
           socket.emit("join room", room);
         }
 
-        document.getElementById('roomLabel').innerHTML = room
+        document.getElementById("roomLabel").innerHTML =
+          "Current room ~ " + room;
       };
+
+      // Enter event for sending messages
+      messageInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById("sendBtn").click();
+        }
+      });
     </script>
   </body>
 </html>

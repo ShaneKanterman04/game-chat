@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
 
   socket.on("chat message", (msg, room) => {
     io.to(room).emit("chat message", msg, room);
-    console.log(room)
+    console.log("Message: " + msg + ' to room ' + room)
   });
 
   socket.on("join room", (room) => {
