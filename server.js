@@ -12,27 +12,22 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
   // Create the temporary user class to add to array
-  temp = new user();
-  temp.room = "";
-  temp.socket = socket;
-  
-  activeUsers.push(temp);
 
-  console.log("User connected " + temp.inGame);
   
   socket.on("disconnect", (msg) => {
     // Remove user from active users on discconect
-    activeUsers.splice(activeUsers.indexOf(temp, activeUsers.indexOf(temp)));
+    //activeUsers.splice(activeUsers.indexOf(temp, activeUsers.indexOf(temp)));
   });
 
   socket.on("chat message", (msg, room) => {
-    io.to(room).emit("chat message", msg, room);
+    io.to(room).emit("chat message", formatMessage(socket.id, msg, room));
     console.log("Message: " + msg + ' to room ' + room)
+
+    console.log(formatMessage(socket.id, msg, room));
   });
 
   socket.on("join room", (room) => {
-    
-    socket.join(room)
+    createChat(socket, room);
   });
 });
 
@@ -40,18 +35,50 @@ server.listen(3000, () => {
   console.log("listening on *:3000");
 });
 
-class chat {
-  id;
-  messages = [];
+
+// Chat Manager
+
+function createChat(socket, room) {
+  if(checkChatExists(room)) {
+
+  }else {
+    var temp = new Chat();
+    temp.roomName = room;
+    temp.usersConnected++;
+    chats.push(temp);
+  }
+  
+  socket.join(room)
 }
 
-class user {
+function checkChatExists(room) {
+  for (var i = 0; i < chats.length; i++) {
+    if (chats[i].roomName == room) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function formatMessage(user, message, room) {
+  var temp = new Message();
+  temp.user = user;
+  temp.message = message;
+  temp.room = room;
+
+  return temp;
+}
+
+class Message {
+  user;
+  message;
   room;
-  socket;
-  inGame = false;
 }
 
+class Chat {
+  roomName;
+  messages = [];
+  usersConnected = 0;
+}
 
-activeUsers = [];
-
-var chats = [];
+chats = [];

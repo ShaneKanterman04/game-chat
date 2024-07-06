@@ -5,7 +5,9 @@
     <style>
       body {
         color: white;
-        background-color: white;
+        background-color: #0B2545;
+        height: 100%;
+        padding: 50px;
       }
 
       li {
@@ -14,10 +16,23 @@
         background-color: #13315c;
       }
 
+      .roomBtn {
+        background-color: #0b2545;
+        border-color: #DD4050;
+        border-width: 3px;
+        color: white;
+        font-size: 45px;
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 5px;
+      }
+
       #panel {
         background-color: #13315c;
-        min-height: 100%;
-        padding: 10px;
+        margin: 12px;
+        padding-left: 5px;
+        height: 100vh;
       }
 
       #spacing {
@@ -26,14 +41,24 @@
       }
 
       #message {
-        font-size: 50px;
+        font-size: 18px;
+        border-radius: 10px;
+        color: white;
+        background-color: #0b2545;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
+        display: list-item;
+        max-width: 100%;
+        padding: 10px;
+        width: fit-content;
       }
     </style>
   </head>
 
   <body>
-    <div id="panel" style="width: 100%; overflow: hidden">
-      <div style="width: 600px; float: left">
+    <div style="margin: 10px">
+      <div id="panel" style="width: 600px; float: left">
         <h1>Rooms</h1>
         <label for="roomLabel"></label>
         <div id="newRoom">
@@ -50,72 +75,64 @@
         <p id="roomLabel"></p>
         <div id="messages"></div>
         <input type="text" name="" id="messageInput" />
-        <button id="sendBtn" onclick="sendMessage(document.getElementById('messageInput'))">
-          Send
-        </button>
+        <button id="sendBtn" onclick="sendMessage(document.getElementById('messageInput'))">Send</button>
       </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io();
+      var socket = io()
 
       // Get html elements needed
-      var messages = document.getElementById("messages");
-      var room;
-      var form = document.getElementById("form");
-      var input = document.getElementById("input");
-      var rooms = document.getElementById("rooms");
-      var messageInput = document.getElementById("messageInput");
+      var messages = document.getElementById('messages')
+      var room
+      var form = document.getElementById('form')
+      var input = document.getElementById('input')
+      var rooms = document.getElementById('rooms')
+      var messageInput = document.getElementById('messageInput')
 
       // Event when server sends message
-      socket.on("chat message", function (msg) {
-        var item = document.createElement("li");
-        item.textContent = msg;
-        item.id = "message";
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
+      socket.on('chat message', function (msg) {
+        var item = document.createElement('li')
+        item.textContent = msg.message
+        item.id = 'message'
+        messages.appendChild(item)
+        //window.scrollTo(0, document.body.scrollHeight)
+      })
 
       // Send message to server
       sendMessage = (message) => {
-        socket.emit("chat message", message.value, room);
-        message.value = ""; // Reset input to blank
-      };
+        socket.emit('chat message', message.value, room)
+        message.value = '' // Reset input to blank
+      }
 
       // Join new room
       joinRoom = (roomId) => {
         if (roomId == null) {
-          room = document.getElementById("room").value;
-          socket.emit("join room", room);
-          var item = document.createElement("span");
-          item.innerHTML =
-            '<li><button id="' +
-            room +
-            '" onclick="joinRoom(' +
-            room +
-            ')"/>' +
-            room;
-          rooms.appendChild(item);
+          room = document.getElementById('room').value
+          socket.emit('join room', room)
+          var item = document.createElement('span')
+          item.innerHTML = '<li><button class="roomBtn" id="' + room + '" onclick="joinRoom(' + room + ')"/>' + room
+          rooms.appendChild(item)
 
-          document.getElementById("room").value = ""; // Reset input to blank
-        } else { // Join a previously visited room
-          room = roomId.innerHTML;
+          document.getElementById('room').value = '' // Reset input to blank
+        } else {
+          // Join a previously visited room
+          room = roomId.innerHTML
 
-          socket.emit("join room", room);
+          socket.emit('join room', room)
         }
 
-        document.getElementById("roomLabel").innerHTML =
-          "Current room ~ " + room;
-      };
+        document.getElementById('roomLabel').innerHTML = 'Current room ~ ' + room
+      }
 
       // Enter event for sending messages
-      messageInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          document.getElementById("sendBtn").click();
+      messageInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault()
+          document.getElementById('sendBtn').click()
         }
-      });
+      })
     </script>
   </body>
 </html>
